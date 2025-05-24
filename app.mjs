@@ -9,7 +9,18 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    res.send("Hello TechUp!");
+    const queryParams = req.query;
+
+    const result = Object.entries(queryParams).map(([key, value]) => ({
+        query: key,
+        value,
+    }));
+
+    console.log(result);
+
+    res.json({
+        data: result,
+    });
 });
 
 app.get("/posts", (req, res) => {
@@ -71,7 +82,7 @@ app.get("/posts", (req, res) => {
 });
 
 app.get("/posts/:id", (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = Number.parseInt(req.params.id);
     const post = blogPosts.find((post) => post.id === id);
 
     if (!post) {
