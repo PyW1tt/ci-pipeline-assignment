@@ -9,8 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    const queryParams = req.query;
+    if (Object.keys(req.query).length === 0) {
+        return res.send("Hello TechUp!");
+    }
 
+    const queryParams = req.query;
     const result = Object.entries(queryParams).map(([key, value]) => ({
         query: key,
         value,
