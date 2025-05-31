@@ -1,3 +1,4 @@
+#! ------------- week 3
 name: CI with SonarCloud # ชื่อ Workflow ที่จะแสดงในแท็บ Actions
 
 on:
@@ -9,7 +10,7 @@ on:
 
 jobs:
     build:
-        name: Build and Analyze # ชื่องานที่จะทำใน workflow นี้
+        name: Build, Test, Analyze and Deploy # ชื่องานที่จะทำใน workflow นี้
         runs-on: ubuntu-latest # ใช้ runner ที่เป็น Ubuntu version ล่าสุด
 
         steps:
@@ -35,3 +36,24 @@ jobs:
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # ใช้ token ที่เก็บไว้ใน GitHub Secret
               with:
                   projectBaseDir: . # ระบุ root ของโปรเจคที่มีไฟล์ sonar-project.properties
+
+                  #! ------------- week 4
+
+            - name: Authenticate with Google Cloud # Authenticate กับ Google Cloud โดยใช้ Service Account
+              uses: google-github-actions/auth@v2
+              with:
+                  credentials_json: "${{ secrets.GCP_SA_KEY }}" # Secret ที่เก็บ JSON Key ของ Service Account
+
+            - name: Set up gcloud CLI # ติดตั้งและตั้งค่า gcloud CLI
+              uses: google-github-actions/setup-gcloud@v2
+              with:
+                  project_id: ${{ secrets.GCP_PROJECT_ID }} # Project ID จาก GCP
+
+            - name: Deploy to Cloud Run # Deploy ขึ้น Cloud Run
+              if: ${{ github.event_name == 'push' }} # ให้ Deploy เฉพาะตอน push เข้า main เท่านั้น
+              run: |
+                  gcloud run deploy ${{ secrets.CLOUD_RUN_SERVICE_NAME }}                               
+                  --source .                               
+                  --region ${{ secrets.GCP_REGION }}                               
+                  --platform managed                               
+                  --allow-unauthenticated
