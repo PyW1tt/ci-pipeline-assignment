@@ -15,12 +15,10 @@ describe("GET /", () => {
         );
     });
 
-    it("should return empty array when no query params", async () => {
+    it("should return 'Hello TechUp!' when no query params", async () => {
         const res = await request(app).get("/");
         expect(res.statusCode).toBe(200);
-        expect(res.body).toHaveProperty("data");
-        expect(Array.isArray(res.body.data)).toBe(true);
-        expect(res.body.data.length).toBe(0);
+        expect(res.text).toBe("Hello TechUp!");
     });
 
     it("should support array values for repeated query params", async () => {
